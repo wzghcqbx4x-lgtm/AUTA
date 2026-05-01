@@ -12,40 +12,18 @@
       padding: 24px 16px;
       color: #222;
     }
-    header {
-      max-width: 860px;
-      margin: 0 auto 24px;
-    }
-    header h1 {
-      font-size: 26px;
-      font-weight: 700;
-      color: #1a1a2e;
-    }
-    header p {
-      font-size: 13px;
-      color: #888;
-      margin-top: 4px;
-    }
-    #souhrn {
-      max-width: 860px;
-      margin: 0 auto 20px;
-    }
+    header { max-width: 860px; margin: 0 auto 24px; }
+    header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; }
+    header p { font-size: 13px; color: #888; margin-top: 4px; }
+    #souhrn { max-width: 860px; margin: 0 auto 20px; }
     .souhrn-box {
       background: #fff8e1;
       border-left: 4px solid #ffa000;
       border-radius: 10px;
       padding: 14px 18px;
     }
-    .souhrn-box strong {
-      font-size: 14px;
-      color: #e65100;
-    }
-    .souhrn-box ul {
-      margin: 8px 0 0 16px;
-      font-size: 14px;
-      color: #555;
-      line-height: 1.8;
-    }
+    .souhrn-box strong { font-size: 14px; color: #e65100; }
+    .souhrn-box ul { margin: 8px 0 0 16px; font-size: 14px; color: #555; line-height: 1.8; }
     .grid {
       max-width: 860px;
       margin: 0 auto;
@@ -53,12 +31,7 @@
       grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
       gap: 16px;
     }
-    .auto {
-      background: white;
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
+    .auto { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
     .auto-header {
       display: flex;
       align-items: center;
@@ -67,19 +40,9 @@
       padding-bottom: 12px;
       border-bottom: 1px solid #f0f0f0;
     }
-    .auto-ikona {
-      font-size: 28px;
-    }
-    .auto-nazev {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1a1a2e;
-    }
-    .auto-spz {
-      font-size: 12px;
-      color: #999;
-      margin-top: 2px;
-    }
+    .auto-ikona { font-size: 28px; }
+    .auto-nazev { font-size: 16px; font-weight: 600; color: #1a1a2e; }
+    .auto-spz { font-size: 12px; color: #999; margin-top: 2px; }
     .termin {
       display: flex;
       justify-content: space-between;
@@ -103,7 +66,6 @@
       padding: 2px 8px;
       border-radius: 99px;
       margin-left: 6px;
-      vertical-align: middle;
     }
     .badge-brzy { background: #fff3e0; color: #e65100; }
     .badge-preskoceno { background: #ffebee; color: #c62828; }
@@ -147,15 +109,15 @@
   function zbarvi(datum) {
     const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
     if (diff < 0) return { cls: "preskoceno", text: "prošlé!", diff };
-    if (diff <= 60) return { cls: "brzy", text: `za ${diff} dní`, diff };
-    return { cls: "ok", text: `za ${diff} dní`, diff };
+    if (diff <= 60) return { cls: "brzy", text: "za " + diff + " dní", diff };
+    return { cls: "ok", text: "za " + diff + " dní", diff };
   }
 
   function formatDatum(datum) {
     return new Date(datum).toLocaleDateString("cs-CZ");
   }
 
-  function function renderAuto(id, nazev, ikona, spz, terminy) {
+  function renderAuto(id, nazev, ikona, spz, terminy) {
     const el = document.getElementById(id);
     let html = `
       <div class="auto-header">
@@ -165,19 +127,20 @@
           <div class="auto-spz">${spz}</div>
         </div>
       </div>`;
-    for (const [nazevTerminu, datum] of Object.entries(terminy)) {
-      const { cls, text } = zbarvi(datum);
-      const badge = cls === "brzy"
-        ? `<span class="badge badge-brzy">!</span>`
-        : cls === "preskoceno"
-        ? `<span class="badge badge-preskoceno">!!</span>`
+    for (const nazevTerminu in terminy) {
+      const datum = terminy[nazevTerminu];
+      const info = zbarvi(datum);
+      const badge = info.cls === "brzy"
+        ? '<span class="badge badge-brzy">!</span>'
+        : info.cls === "preskoceno"
+        ? '<span class="badge badge-preskoceno">!!</span>'
         : "";
       html += `
-        <div class="termin ${cls}">
+        <div class="termin ${info.cls}">
           <span class="termin-nazev">${nazevTerminu}${badge}</span>
           <div class="termin-info">
             <div class="termin-datum">${formatDatum(datum)}</div>
-            <div class="termin-dnu">${text}</div>
+            <div class="termin-dnu">${info.text}</div>
           </div>
         </div>`;
     }
@@ -203,8 +166,6 @@
     "Pojištění": "2027-04-17"
   });
 
-  // Souhrn
-  const brzy = [];
   const vsechnaAuta = [
     { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-08" }},
     { nazev: "Škoda Karoq", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
@@ -212,23 +173,25 @@
     { nazev: "Kia Rio", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
   ];
 
-  vsechnaAuta.forEach(auto => {
-    Object.entries(auto.terminy).forEach(([nazev, datum]) => {
-      const { diff, cls } = zbarvi(datum);
-      if (cls !== "ok") brzy.push({ text: `${auto.nazev} — ${nazev}`, diff, cls });
-    });
+  const brzy = [];
+  vsechnaAuta.forEach(function(auto) {
+    for (const nazev in auto.terminy) {
+      const info = zbarvi(auto.terminy[nazev]);
+      if (info.cls !== "ok") {
+        brzy.push({ text: auto.nazev + " — " + nazev, diff: info.diff, cls: info.cls });
+      }
+    }
   });
 
-  brzy.sort((a, b) => a.diff - b.diff);
+  brzy.sort(function(a, b) { return a.diff - b.diff; });
 
   if (brzy.length > 0) {
-    document.getElementById("souhrn").innerHTML = `
-      <div class="souhrn-box">
-        <strong>⚠️ Vyřiď nejdřív:</strong>
-        <ul>
-          ${brzy.map(b => `<li>${b.text} <strong>(${b.diff < 0 ? "prošlé!" : "za " + b.diff + " dní"})</strong></li>`).join("")}
-        </ul>
-      </div>`;
+    document.getElementById("souhrn").innerHTML =
+      '<div class="souhrn-box"><strong>⚠️ Vyřiď nejdřív:</strong><ul>' +
+      brzy.map(function(b) {
+        return "<li>" + b.text + " <strong>(" + (b.diff < 0 ? "prošlé!" : "za " + b.diff + " dní") + ")</strong></li>";
+      }).join("") +
+      "</ul></div>";
   }
 </script>
 
