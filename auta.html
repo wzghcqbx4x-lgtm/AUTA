@@ -43,6 +43,7 @@
     .auto-ikona { font-size: 28px; }
     .auto-nazev { font-size: 16px; font-weight: 600; color: #1a1a2e; }
     .auto-spz { font-size: 12px; color: #999; margin-top: 2px; }
+    .auto-majitel { font-size: 12px; color: #666; margin-top: 3px; }
     .termin {
       display: flex;
       justify-content: space-between;
@@ -120,7 +121,7 @@
     return new Date(datum).toLocaleDateString("cs-CZ");
   }
 
-  function renderAuto(id, nazev, ikona, spz, terminy) {
+  function renderAuto(id, nazev, ikona, spz, majitel, terminy) {
     const el = document.getElementById(id);
     let html = `
       <div class="auto-header">
@@ -128,6 +129,7 @@
         <div>
           <div class="auto-nazev">${nazev}</div>
           <div class="auto-spz">${spz}</div>
+          <div class="auto-majitel">👤 ${majitel}</div>
         </div>
       </div>`;
     for (const nazevTerminu in terminy) {
@@ -150,27 +152,27 @@
     el.innerHTML = html;
   }
 
-  renderAuto("superb", "Škoda Superb 3 Sportline", "🚙", "6SN 4035", {
+  renderAuto("superb", "Škoda Superb 3 Sportline", "🚙", "6SN 4035", "Petr Havlovic ml.", {
     "STK":             "2026-06-03",
     "Pojištění":       "2026-12-31",
     "Dálniční známka": "2026-12-12"
   });
-  renderAuto("karoq", "Škoda Karoq", "🚗", "1TR 1366", {
+  renderAuto("karoq", "Škoda Karoq", "🚗", "1TR 1366", "Petr Havlovic st.", {
     "STK":             "2027-04-23",
     "Pojištění":       "2026-06-19",
     "Dálniční známka": "2027-01-29"
   });
-  renderAuto("ceed", "Kia Ceed", "🚘", "5U0 3868", {
+  renderAuto("ceed", "Kia Ceed", "🚘", "5U0 3868", "Michaela Hlínová/Havlovicová", {
     "STK":       "2026-05-17",
     "Pojištění": "2027-02-14"
   });
-  renderAuto("rio", "Kia Rio", "🚖", "6SX 4095", {
+  renderAuto("rio", "Kia Rio", "🚖", "6SX 4095", "Iveta Havlovicová", {
     "STK":       "2026-11-11",
     "Pojištění": "2027-04-17"
   });
 
   const vsechnaAuta = [
-    { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-08" }},
+    { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-12" }},
     { nazev: "Škoda Karoq", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
     { nazev: "Kia Ceed", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
     { nazev: "Kia Rio", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
@@ -196,7 +198,8 @@
       }).join("") +
       "</ul></div>";
   }
-function poslatEmail() {
+
+  function poslatEmail() {
     const radky = [];
     vsechnaAuta.forEach(function(auto) {
       for (const nazev in auto.terminy) {
@@ -212,7 +215,8 @@ function poslatEmail() {
       "\n\nOdkaz: https://wzghcqbx4x-lgtm.github.io/AUTA/auta.html"
     );
     window.location.href = "mailto:?subject=" + predmet + "&body=" + telo;
-  }</script>
+  }
+</script>
 
 </body>
 </html>
