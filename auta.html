@@ -55,7 +55,13 @@
     .termin:last-child { border-bottom: none; }
     .termin-nazev { color: #555; }
     .termin-info { text-align: right; }
-    .termin-datum { font-weight: 600; }
+    .termin-datum {
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 1px dashed #ccc;
+      display: inline-block;
+    }
+    .termin-datum:hover { border-bottom-color: #1a1a2e; }
     .termin-dnu { font-size: 11px; color: #aaa; margin-top: 2px; }
     .ok .termin-datum { color: #2e7d32; }
     .brzy .termin-datum { color: #e65100; }
@@ -77,6 +83,42 @@
       font-size: 12px;
       color: #bbb;
     }
+    .edit-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .edit-box {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .edit-box h3 { font-size: 16px; margin-bottom: 16px; color: #1a1a2e; }
+    .edit-box input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+    .edit-btns { display: flex; gap: 8px; }
+    .edit-btns button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-ulozit { background: #1a1a2e; color: white; }
+    .btn-zrusit { background: #f0f0f0; color: #555; }
     @media (max-width: 600px) {
       .grid { grid-template-columns: 1fr; }
       header h1 { font-size: 22px; }
@@ -87,7 +129,7 @@
 
 <header>
   <h1>🚗 Správce mých aut</h1>
-  <p>Přehled termínů pro všechna vozidla</p>
+  <p>Přehled termínů pro všechna vozidla — klikni na datum pro úpravu</p>
 </header>
 
 <div id="souhrn"></div>
@@ -110,6 +152,13 @@
   document.getElementById("aktualizace").textContent =
     "Aktualizováno: " + dnes.toLocaleDateString("cs-CZ");
 
+  const data = {
+    superb:  { nazev: "Škoda Superb 3 Sportline", ikona: "🚙", spz: "6SN 4035", majitel: "Petr Havlovic ml.", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-12" }},
+    karoq:   { nazev: "Škoda Karoq", ikona: "🚗", spz: "1TR 1366", majitel: "Petr Havlovic st.", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
+    ceed:    { nazev: "Kia Ceed", ikona: "🚘", spz: "5U0 3868", majitel: "Michaela Hlínová/Havlovicová", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
+    rio:     { nazev: "Kia Rio", ikona: "🚖", spz: "6SX 4095", majitel: "Iveta Havlovicová", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
+  };
+
   function zbarvi(datum) {
     const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
     if (diff < 0) return { cls: "preskoceno", text: "prošlé!", diff };
@@ -121,19 +170,20 @@
     return new Date(datum).toLocaleDateString("cs-CZ");
   }
 
-  function renderAuto(id, nazev, ikona, spz, majitel, terminy) {
+  function renderAuto(id) {
+    const auto = data[id];
     const el = document.getElementById(id);
     let html = `
       <div class="auto-header">
-        <div class="auto-ikona">${ikona}</div>
+        <div class="auto-ikona">${auto.ikona}</div>
         <div>
-          <div class="auto-nazev">${nazev}</div>
-          <div class="auto-spz">${spz}</div>
-          <div class="auto-majitel">👤 ${majitel}</div>
+          <div class="auto-nazev">${auto.nazev}</div>
+          <div class="auto-spz">${auto.spz}</div>
+          <div class="auto-majitel">👤 ${auto.majitel}</div>
         </div>
       </div>`;
-    for (const nazevTerminu in terminy) {
-      const datum = terminy[nazevTerminu];
+    for (const nazevTerminu in auto.terminy) {
+      const datum = auto.terminy[nazevTerminu];
       const info = zbarvi(datum);
       const badge = info.cls === "brzy"
         ? '<span class="badge badge-brzy">!</span>'
@@ -144,7 +194,7 @@
         <div class="termin ${info.cls}">
           <span class="termin-nazev">${nazevTerminu}${badge}</span>
           <div class="termin-info">
-            <div class="termin-datum">${formatDatum(datum)}</div>
+            <div class="termin-datum" onclick="upravitDatum('${id}','${nazevTerminu}')">${formatDatum(datum)}</div>
             <div class="termin-dnu">${info.text}</div>
           </div>
         </div>`;
@@ -152,62 +202,67 @@
     el.innerHTML = html;
   }
 
-  renderAuto("superb", "Škoda Superb 3 Sportline", "🚙", "6SN 4035", "Petr Havlovic ml.", {
-    "STK":             "2026-06-03",
-    "Pojištění":       "2026-12-31",
-    "Dálniční známka": "2026-12-12"
-  });
-  renderAuto("karoq", "Škoda Karoq", "🚗", "1TR 1366", "Petr Havlovic st.", {
-    "STK":             "2027-04-23",
-    "Pojištění":       "2026-06-19",
-    "Dálniční známka": "2027-01-29"
-  });
-  renderAuto("ceed", "Kia Ceed", "🚘", "5U0 3868", "Michaela Hlínová/Havlovicová", {
-    "STK":       "2026-05-17",
-    "Pojištění": "2027-02-14"
-  });
-  renderAuto("rio", "Kia Rio", "🚖", "6SX 4095", "Iveta Havlovicová", {
-    "STK":       "2026-11-11",
-    "Pojištění": "2027-04-17"
-  });
+  function renderVse() {
+    for (const id in data) renderAuto(id);
+    renderSouhrn();
+  }
 
-  const vsechnaAuta = [
-    { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-12" }},
-    { nazev: "Škoda Karoq", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
-    { nazev: "Kia Ceed", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
-    { nazev: "Kia Rio", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
-  ];
+  function upravitDatum(autoId, terminNazev) {
+    const aktualniDatum = data[autoId].terminy[terminNazev];
+    const overlay = document.createElement("div");
+    overlay.className = "edit-overlay";
+    overlay.innerHTML = `
+      <div class="edit-box">
+        <h3>Upravit: ${terminNazev}<br><small style="font-weight:400;color:#999;">${data[autoId].nazev}</small></h3>
+        <input type="date" id="edit-input" value="${aktualniDatum}">
+        <div class="edit-btns">
+          <button class="btn-zrusit" onclick="this.closest('.edit-overlay').remove()">Zrušit</button>
+          <button class="btn-ulozit" onclick="ulozitDatum('${autoId}','${terminNazev}')">Uložit</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
 
-  const brzy = [];
-  vsechnaAuta.forEach(function(auto) {
-    for (const nazev in auto.terminy) {
-      const info = zbarvi(auto.terminy[nazev]);
-      if (info.cls !== "ok") {
-        brzy.push({ text: auto.nazev + " — " + nazev, diff: info.diff, cls: info.cls });
+  function ulozitDatum(autoId, terminNazev) {
+    const noveDatum = document.getElementById("edit-input").value;
+    if (noveDatum) {
+      data[autoId].terminy[terminNazev] = noveDatum;
+      document.querySelector(".edit-overlay").remove();
+      renderVse();
+    }
+  }
+
+  function renderSouhrn() {
+    const brzy = [];
+    for (const id in data) {
+      const auto = data[id];
+      for (const nazev in auto.terminy) {
+        const info = zbarvi(auto.terminy[nazev]);
+        if (info.cls !== "ok") {
+          brzy.push({ text: auto.nazev + " — " + nazev, diff: info.diff });
+        }
       }
     }
-  });
-
-  brzy.sort(function(a, b) { return a.diff - b.diff; });
-
-  if (brzy.length > 0) {
-    document.getElementById("souhrn").innerHTML =
-      '<div class="souhrn-box"><strong>⚠️ Vyřiď nejdřív:</strong><ul>' +
-      brzy.map(function(b) {
-        return "<li>" + b.text + " <strong>(" + (b.diff < 0 ? "prošlé!" : "za " + b.diff + " dní") + ")</strong></li>";
-      }).join("") +
-      "</ul></div>";
+    brzy.sort(function(a, b) { return a.diff - b.diff; });
+    if (brzy.length > 0) {
+      document.getElementById("souhrn").innerHTML =
+        '<div class="souhrn-box"><strong>⚠️ Vyřiď nejdřív:</strong><ul>' +
+        brzy.map(function(b) {
+          return "<li>" + b.text + " <strong>(" + (b.diff < 0 ? "prošlé!" : "za " + b.diff + " dní") + ")</strong></li>";
+        }).join("") + "</ul></div>";
+    }
   }
 
   function poslatEmail() {
     const radky = [];
-    vsechnaAuta.forEach(function(auto) {
+    for (const id in data) {
+      const auto = data[id];
       for (const nazev in auto.terminy) {
         const info = zbarvi(auto.terminy[nazev]);
         const stav = info.cls === "preskoceno" ? "❌ PROŠLÉ" : info.cls === "brzy" ? "⚠️ BRZY" : "✅";
         radky.push(stav + " " + auto.nazev + " — " + nazev + " (" + info.text + ")");
       }
-    });
+    }
     const predmet = encodeURIComponent("🚗 Správce aut — přehled termínů");
     const telo = encodeURIComponent(
       "Přehled termínů aut ke dni " + dnes.toLocaleDateString("cs-CZ") + ":\n\n" +
@@ -216,6 +271,8 @@
     );
     window.location.href = "mailto:?subject=" + predmet + "&body=" + telo;
   }
+
+  renderVse();
 </script>
 
 </body>
