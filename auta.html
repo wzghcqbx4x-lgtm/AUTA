@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Správce mých aut</title>
+  <title>Správa aut</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -31,7 +31,14 @@
       grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
       gap: 16px;
     }
-    .auto { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .auto { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .auto-foto {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .auto-body { padding: 16px 20px 20px; }
     .auto-header {
       display: flex;
       align-items: center;
@@ -40,7 +47,6 @@
       padding-bottom: 12px;
       border-bottom: 1px solid #f0f0f0;
     }
-    .auto-ikona { font-size: 28px; }
     .auto-nazev { font-size: 16px; font-weight: 600; color: #1a1a2e; }
     .auto-spz { font-size: 12px; color: #999; margin-top: 2px; }
     .auto-majitel { font-size: 12px; color: #666; margin-top: 3px; }
@@ -86,7 +92,7 @@
 <body>
 
 <header>
-  <h1>🚗 Správce mých aut</h1>
+  <h1>🚗 SPRÁVA AUT</h1>
   <p>Přehled termínů pro všechna vozidla</p>
 </header>
 
@@ -111,10 +117,10 @@
     "Aktualizováno: " + dnes.toLocaleDateString("cs-CZ");
 
   const data = {
-    superb:  { nazev: "Škoda Superb 3 Sportline", ikona: "🚙", spz: "6SN 4035", majitel: "Petr Havlovic ml.", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-12" }},
-    karoq:   { nazev: "Škoda Karoq", ikona: "🚗", spz: "1TR 1366", majitel: "Petr Havlovic st.", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
-    ceed:    { nazev: "Kia Ceed", ikona: "🚘", spz: "5U0 3868", majitel: "Michaela Hlínová/Havlovicová", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
-    rio:     { nazev: "Kia Rio", ikona: "🚖", spz: "6SX 4095", majitel: "Iveta Havlovicová", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
+    superb:  { nazev: "Škoda Superb 3 Sportline", foto: "superb.jpg", spz: "6SN 4035", majitel: "Petr Havlovic ml.", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-12" }},
+    karoq:   { nazev: "Škoda Karoq", foto: "karoq.jpg", spz: "1TR 1366", majitel: "Petr Havlovic st.", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
+    ceed:    { nazev: "Kia Ceed", foto: "ceed.jpg", spz: "5U0 3868", majitel: "Michaela Hlínová/Havlovicová", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
+    rio:     { nazev: "Kia Rio", foto: "rio.jpg", spz: "6SX 4095", majitel: "Iveta Havlovicová", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
   };
 
   function zbarvi(datum) {
@@ -132,14 +138,15 @@
     const auto = data[id];
     const el = document.getElementById(id);
     let html = `
-      <div class="auto-header">
-        <div class="auto-ikona">${auto.ikona}</div>
-        <div>
-          <div class="auto-nazev">${auto.nazev}</div>
-          <div class="auto-spz">${auto.spz}</div>
-          <div class="auto-majitel">👤 ${auto.majitel}</div>
-        </div>
-      </div>`;
+      <img class="auto-foto" src="${auto.foto}" alt="${auto.nazev}">
+      <div class="auto-body">
+        <div class="auto-header">
+          <div>
+            <div class="auto-nazev">${auto.nazev}</div>
+            <div class="auto-spz">${auto.spz}</div>
+            <div class="auto-majitel">👤 ${auto.majitel}</div>
+          </div>
+        </div>`;
     for (const nazevTerminu in auto.terminy) {
       const datum = auto.terminy[nazevTerminu];
       const info = zbarvi(datum);
@@ -157,6 +164,7 @@
           </div>
         </div>`;
     }
+    html += `</div>`;
     el.innerHTML = html;
   }
 
@@ -193,7 +201,7 @@
         radky.push(stav + " " + auto.nazev + " — " + nazev + " (" + info.text + ")");
       }
     }
-    const predmet = encodeURIComponent("🚗 Správce aut — přehled termínů");
+    const predmet = encodeURIComponent("🚗 Správa aut — přehled termínů");
     const telo = encodeURIComponent(
       "Přehled termínů aut ke dni " + dnes.toLocaleDateString("cs-CZ") + ":\n\n" +
       radky.join("\n") +
