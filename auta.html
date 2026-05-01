@@ -99,6 +99,9 @@
 </div>
 
 <div class="aktualizace" id="aktualizace"></div>
+<div style="max-width:860px;margin:12px auto;text-align:right;">
+  <button onclick="poslatEmail()" style="background:#1a1a2e;color:white;border:none;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;">📧 Poslat přehled emailem</button>
+</div>
 
 <script>
   const dnes = new Date();
@@ -193,7 +196,23 @@
       }).join("") +
       "</ul></div>";
   }
-</script>
+function poslatEmail() {
+    const radky = [];
+    vsechnaAuta.forEach(function(auto) {
+      for (const nazev in auto.terminy) {
+        const info = zbarvi(auto.terminy[nazev]);
+        const stav = info.cls === "preskoceno" ? "❌ PROŠLÉ" : info.cls === "brzy" ? "⚠️ BRZY" : "✅";
+        radky.push(stav + " " + auto.nazev + " — " + nazev + " (" + info.text + ")");
+      }
+    });
+    const predmet = encodeURIComponent("🚗 Správce aut — přehled termínů");
+    const telo = encodeURIComponent(
+      "Přehled termínů aut ke dni " + dnes.toLocaleDateString("cs-CZ") + ":\n\n" +
+      radky.join("\n") +
+      "\n\nOdkaz: https://wzghcqbx4x-lgtm.github.io/AUTA/auta.html"
+    );
+    window.location.href = "mailto:?subject=" + predmet + "&body=" + telo;
+  }</script>
 
 </body>
 </html>
