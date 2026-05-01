@@ -102,7 +102,39 @@
   renderAuto("rio", "Kia Rio", {
     "STK":       "2026-11-11",
     "Pojištění": "2027-04-17"
-  });
+  });// Notifikace
+  function zkontrolujTerminy() {
+    const brzy = [];
+    const vsechnaAuta = [
+      { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-08" }},
+      { nazev: "Škoda Karoq", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
+      { nazev: "Kia Ceed", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
+      { nazev: "Kia Rio", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
+    ];
+
+    vsechnaAuta.forEach(auto => {
+      Object.entries(auto.terminy).forEach(([nazev, datum]) => {
+        const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
+        if (diff >= 0 && diff <= 30) {
+          brzy.push(`${auto.nazev} — ${nazev} (za ${diff} dní)`);
+        }
+      });
+    });
+
+    if (brzy.length > 0 && Notification.permission === "granted") {
+      new Notification("🚗 Správce aut — blížící se termíny", {
+        body: brzy.join("\n")
+      });
+    }
+  }
+
+  if (Notification.permission === "default") {
+    Notification.requestPermission().then(perm => {
+      if (perm === "granted") zkontrolujTerminy();
+    });
+  } else if (Notification.permission === "granted") {
+    zkontrolujTerminy();
+  }
 </script>
 
 </body>
