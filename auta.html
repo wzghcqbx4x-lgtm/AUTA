@@ -2,140 +2,207 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Moje auta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Správce mých aut</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 40px auto;
-      background: #f5f5f5;
-      padding: 0 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      padding: 24px 16px;
+      color: #222;
     }
-    h1 { color: #333; }
+    header {
+      max-width: 860px;
+      margin: 0 auto 24px;
+    }
+    header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    header p {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+    }
+    #souhrn {
+      max-width: 860px;
+      margin: 0 auto 20px;
+    }
+    .souhrn-box {
+      background: #fff8e1;
+      border-left: 4px solid #ffa000;
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .souhrn-box strong {
+      font-size: 14px;
+      color: #e65100;
+    }
+    .souhrn-box ul {
+      margin: 8px 0 0 16px;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.8;
+    }
+    .grid {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 16px;
+    }
     .auto {
       background: white;
-      border-radius: 10px;
+      border-radius: 14px;
       padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     }
-    .auto h2 { margin: 0 0 12px; color: #222; }
+    .auto-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .auto-ikona {
+      font-size: 28px;
+    }
+    .auto-nazev {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+    .auto-spz {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
     .termin {
       display: flex;
       justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 15px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 14px;
     }
     .termin:last-child { border-bottom: none; }
-    .ok { color: green; font-weight: bold; }
-    .brzy { color: orange; font-weight: bold; }
-    .preskoceno { color: red; font-weight: bold; }
-    .dnu { font-size: 12px; color: #999; margin-left: 8px; }
-  @media (max-width: 600px) {
-      body { margin: 20px auto; padding: 0 12px; }
-      .termin { flex-direction: column; gap: 2px; }
-      .dnu { margin-left: 0; }
-      .auto { padding: 14px; }
-      h1 { font-size: 22px; }
-      .auto h2 { font-size: 16px; }
-    }.dnu { font-size: 12px; color: #999; margin-left: 8px; }</style>
+    .termin-nazev { color: #555; }
+    .termin-info { text-align: right; }
+    .termin-datum { font-weight: 600; }
+    .termin-dnu { font-size: 11px; color: #aaa; margin-top: 2px; }
+    .ok .termin-datum { color: #2e7d32; }
+    .brzy .termin-datum { color: #e65100; }
+    .preskoceno .termin-datum { color: #c62828; }
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .badge-brzy { background: #fff3e0; color: #e65100; }
+    .badge-preskoceno { background: #ffebee; color: #c62828; }
+    .aktualizace {
+      max-width: 860px;
+      margin: 20px auto 0;
+      text-align: right;
+      font-size: 12px;
+      color: #bbb;
+    }
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+      header h1 { font-size: 22px; }
+    }
+  </style>
 </head>
 <body>
 
-<h1>🚗 Správce mých aut</h1>
+<header>
+  <h1>🚗 Správce mých aut</h1>
+  <p>Přehled termínů pro všechna vozidla</p>
+</header>
+
 <div id="souhrn"></div>
-<div id="superb" class="auto"></div>
-<div id="karoq" class="auto"></div>
-<div id="ceed" class="auto"></div>
-<div id="rio" class="auto"></div>
+
+<div class="grid">
+  <div id="superb" class="auto"></div>
+  <div id="karoq" class="auto"></div>
+  <div id="ceed" class="auto"></div>
+  <div id="rio" class="auto"></div>
+</div>
+
+<div class="aktualizace" id="aktualizace"></div>
 
 <script>
   const dnes = new Date();
 
+  document.getElementById("aktualizace").textContent =
+    "Aktualizováno: " + dnes.toLocaleDateString("cs-CZ");
+
   function zbarvi(datum) {
-    const d = new Date(datum);
-    const diff = Math.ceil((d - dnes) / (1000 * 60 * 60 * 24));
-    if (diff < 0) return { cls: "preskoceno", text: "prošlé!" };
-    if (diff <= 60) return { cls: "brzy", text: `za ${diff} dní` };
-    return { cls: "ok", text: `za ${diff} dní` };
+    const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return { cls: "preskoceno", text: "prošlé!", diff };
+    if (diff <= 60) return { cls: "brzy", text: `za ${diff} dní`, diff };
+    return { cls: "ok", text: `za ${diff} dní`, diff };
   }
 
   function formatDatum(datum) {
     return new Date(datum).toLocaleDateString("cs-CZ");
   }
 
-  function renderAuto(id, nazev, terminy) {
+  function renderAuto(id, nazev, ikona, terminy) {
     const el = document.getElementById(id);
-    let html = `<h2>🚗 ${nazev}</h2>`;
+    let html = `
+      <div class="auto-header">
+        <div class="auto-ikona">${ikona}</div>
+        <div>
+          <div class="auto-nazev">${nazev}</div>
+        </div>
+      </div>`;
     for (const [nazevTerminu, datum] of Object.entries(terminy)) {
       const { cls, text } = zbarvi(datum);
+      const badge = cls === "brzy"
+        ? `<span class="badge badge-brzy">!</span>`
+        : cls === "preskoceno"
+        ? `<span class="badge badge-preskoceno">!!</span>`
+        : "";
       html += `
-        <div class="termin">
-          <span>${nazevTerminu}</span>
-          <span>
-            <span class="${cls}">${formatDatum(datum)}</span>
-            <span class="dnu">(${text})</span>
-          </span>
+        <div class="termin ${cls}">
+          <span class="termin-nazev">${nazevTerminu}${badge}</span>
+          <div class="termin-info">
+            <div class="termin-datum">${formatDatum(datum)}</div>
+            <div class="termin-dnu">${text}</div>
+          </div>
         </div>`;
     }
     el.innerHTML = html;
   }
 
-  renderAuto("superb", "Škoda Superb 3 Sportline", {
+  renderAuto("superb", "Škoda Superb 3 Sportline", "🚙", {
     "STK":             "2026-06-03",
     "Pojištění":       "2026-12-31",
     "Dálniční známka": "2026-12-08"
   });
-
-  renderAuto("karoq", "Škoda Karoq", {
+  renderAuto("karoq", "Škoda Karoq", "🚗", {
     "STK":             "2027-04-23",
     "Pojištění":       "2026-06-19",
     "Dálniční známka": "2027-01-29"
   });
-
-  renderAuto("ceed", "Kia Ceed", {
+  renderAuto("ceed", "Kia Ceed", "🚘", {
     "STK":       "2026-05-17",
     "Pojištění": "2027-02-14"
   });
-
-  renderAuto("rio", "Kia Rio", {
+  renderAuto("rio", "Kia Rio", "🚖", {
     "STK":       "2026-11-11",
     "Pojištění": "2027-04-17"
-  });// Notifikace
-  function zkontrolujTerminy() {
-    const brzy = [];
-    const vsechnaAuta = [
-      { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-08" }},
-      { nazev: "Škoda Karoq", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
-      { nazev: "Kia Ceed", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
-      { nazev: "Kia Rio", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
-    ];
+  });
 
-    vsechnaAuta.forEach(auto => {
-      Object.entries(auto.terminy).forEach(([nazev, datum]) => {
-        const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
-        if (diff >= 0 && diff <= 30) {
-          brzy.push(`${auto.nazev} — ${nazev} (za ${diff} dní)`);
-        }
-      });
-    });
-
-    if (brzy.length > 0 && Notification.permission === "granted") {
-      new Notification("🚗 Správce aut — blížící se termíny", {
-        body: brzy.join("\n")
-      });
-    }
-  }
-
-  if (Notification.permission === "default") {
-    Notification.requestPermission().then(perm => {
-      if (perm === "granted") zkontrolujTerminy();
-    });
-  } else if (Notification.permission === "granted") {
-    zkontrolujTerminy();
-  }
-// Souhrn nahoře
+  // Souhrn
   const brzy = [];
   const vsechnaAuta = [
     { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-08" }},
@@ -146,25 +213,23 @@
 
   vsechnaAuta.forEach(auto => {
     Object.entries(auto.terminy).forEach(([nazev, datum]) => {
-      const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
-      if (diff >= 0 && diff <= 60) {
-        brzy.push({ text: `${auto.nazev} — ${nazev}`, diff });
-      }
+      const { diff, cls } = zbarvi(datum);
+      if (cls !== "ok") brzy.push({ text: `${auto.nazev} — ${nazev}`, diff, cls });
     });
   });
 
   brzy.sort((a, b) => a.diff - b.diff);
 
   if (brzy.length > 0) {
-    const souhrn = document.getElementById("souhrn");
-    souhrn.style = "background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;margin-bottom:20px;";
-    souhrn.innerHTML = `
-      <strong>⚠️ Vyřiď nejdřív:</strong>
-      <ul style="margin:8px 0 0;padding-left:20px;">
-        ${brzy.map(b => `<li>${b.text} <strong>(za ${b.diff} dní)</strong></li>`).join("")}
-      </ul>
-    `;
-  }</script>
+    document.getElementById("souhrn").innerHTML = `
+      <div class="souhrn-box">
+        <strong>⚠️ Vyřiď nejdřív:</strong>
+        <ul>
+          ${brzy.map(b => `<li>${b.text} <strong>(${b.diff < 0 ? "prošlé!" : "za " + b.diff + " dní"})</strong></li>`).join("")}
+        </ul>
+      </div>`;
+  }
+</script>
 
 </body>
 </html>
