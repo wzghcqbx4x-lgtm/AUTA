@@ -44,7 +44,7 @@
 <body>
 
 <h1>🚗 Správce mých aut</h1>
-
+<div id="souhrn"></div>
 <div id="superb" class="auto"></div>
 <div id="karoq" class="auto"></div>
 <div id="ceed" class="auto"></div>
@@ -135,7 +135,36 @@
   } else if (Notification.permission === "granted") {
     zkontrolujTerminy();
   }
-</script>
+// Souhrn nahoře
+  const brzy = [];
+  const vsechnaAuta = [
+    { nazev: "Škoda Superb 3 Sportline", terminy: { "STK": "2026-06-03", "Pojištění": "2026-12-31", "Dálniční známka": "2026-12-08" }},
+    { nazev: "Škoda Karoq", terminy: { "STK": "2027-04-23", "Pojištění": "2026-06-19", "Dálniční známka": "2027-01-29" }},
+    { nazev: "Kia Ceed", terminy: { "STK": "2026-05-17", "Pojištění": "2027-02-14" }},
+    { nazev: "Kia Rio", terminy: { "STK": "2026-11-11", "Pojištění": "2027-04-17" }}
+  ];
+
+  vsechnaAuta.forEach(auto => {
+    Object.entries(auto.terminy).forEach(([nazev, datum]) => {
+      const diff = Math.ceil((new Date(datum) - dnes) / (1000 * 60 * 60 * 24));
+      if (diff >= 0 && diff <= 60) {
+        brzy.push({ text: `${auto.nazev} — ${nazev}`, diff });
+      }
+    });
+  });
+
+  brzy.sort((a, b) => a.diff - b.diff);
+
+  if (brzy.length > 0) {
+    const souhrn = document.getElementById("souhrn");
+    souhrn.style = "background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;margin-bottom:20px;";
+    souhrn.innerHTML = `
+      <strong>⚠️ Vyřiď nejdřív:</strong>
+      <ul style="margin:8px 0 0;padding-left:20px;">
+        ${brzy.map(b => `<li>${b.text} <strong>(za ${b.diff} dní)</strong></li>`).join("")}
+      </ul>
+    `;
+  }</script>
 
 </body>
 </html>
