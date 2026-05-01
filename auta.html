@@ -32,7 +32,14 @@
     .brzy { color: orange; font-weight: bold; }
     .preskoceno { color: red; font-weight: bold; }
     .dnu { font-size: 12px; color: #999; margin-left: 8px; }
-  </style>
+  @media (max-width: 600px) {
+      body { margin: 20px auto; padding: 0 12px; }
+      .termin { flex-direction: column; gap: 2px; }
+      .dnu { margin-left: 0; }
+      .auto { padding: 14px; }
+      h1 { font-size: 22px; }
+      .auto h2 { font-size: 16px; }
+    }.dnu { font-size: 12px; color: #999; margin-left: 8px; }</style>
 </head>
 <body>
 
