@@ -155,13 +155,14 @@
     return new Date(datum).toLocaleDateString("cs-CZ");
   }
 
-  function renderAuto(id, nazev, ikona, terminy) {
+  function function renderAuto(id, nazev, ikona, spz, terminy) {
     const el = document.getElementById(id);
     let html = `
       <div class="auto-header">
         <div class="auto-ikona">${ikona}</div>
         <div>
           <div class="auto-nazev">${nazev}</div>
+          <div class="auto-spz">${spz}</div>
         </div>
       </div>`;
     for (const [nazevTerminu, datum] of Object.entries(terminy)) {
@@ -183,21 +184,21 @@
     el.innerHTML = html;
   }
 
-  renderAuto("superb", "Škoda Superb 3 Sportline", "🚙", {
+  renderAuto("superb", "Škoda Superb 3 Sportline", "🚙", "6SN 4035", {
     "STK":             "2026-06-03",
     "Pojištění":       "2026-12-31",
     "Dálniční známka": "2026-12-08"
   });
-  renderAuto("karoq", "Škoda Karoq", "🚗", {
+  renderAuto("karoq", "Škoda Karoq", "🚗", "1TR 1366", {
     "STK":             "2027-04-23",
     "Pojištění":       "2026-06-19",
     "Dálniční známka": "2027-01-29"
   });
-  renderAuto("ceed", "Kia Ceed", "🚘", {
+  renderAuto("ceed", "Kia Ceed", "🚘", "5U0 3868", {
     "STK":       "2026-05-17",
     "Pojištění": "2027-02-14"
   });
-  renderAuto("rio", "Kia Rio", "🚖", {
+  renderAuto("rio", "Kia Rio", "🚖", "6SX 4095", {
     "STK":       "2026-11-11",
     "Pojištění": "2027-04-17"
   });
