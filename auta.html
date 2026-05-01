@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Moje auta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      background: #f5f5f5;
+      padding: 0 20px;
+    }
+    h1 { color: #333; }
+    .auto {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+    }
+    .auto h2 { margin: 0 0 12px; color: #222; }
+    .termin {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+    .termin:last-child { border-bottom: none; }
+    .ok { color: green; font-weight: bold; }
+    .brzy { color: orange; font-weight: bold; }
+    .preskoceno { color: red; font-weight: bold; }
+    .dnu { font-size: 12px; color: #999; margin-left: 8px; }
+  </style>
+</head>
+<body>
+
+<h1>🚗 Správce mých aut</h1>
+
+<div id="superb" class="auto"></div>
+<div id="karoq" class="auto"></div>
+<div id="ceed" class="auto"></div>
+<div id="rio" class="auto"></div>
+
+<script>
+  const dnes = new Date();
+
+  function zbarvi(datum) {
+    const d = new Date(datum);
+    const diff = Math.ceil((d - dnes) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return { cls: "preskoceno", text: "prošlé!" };
+    if (diff <= 60) return { cls: "brzy", text: `za ${diff} dní` };
+    return { cls: "ok", text: `za ${diff} dní` };
+  }
+
+  function formatDatum(datum) {
+    return new Date(datum).toLocaleDateString("cs-CZ");
+  }
+
+  function renderAuto(id, nazev, terminy) {
+    const el = document.getElementById(id);
+    let html = `<h2>🚗 ${nazev}</h2>`;
+    for (const [nazevTerminu, datum] of Object.entries(terminy)) {
+      const { cls, text } = zbarvi(datum);
+      html += `
+        <div class="termin">
+          <span>${nazevTerminu}</span>
+          <span>
+            <span class="${cls}">${formatDatum(datum)}</span>
+            <span class="dnu">(${text})</span>
+          </span>
+        </div>`;
+    }
+    el.innerHTML = html;
+  }
+
+  renderAuto("superb", "Škoda Superb 3 Sportline", {
+    "STK":             "2026-06-03",
+    "Pojištění":       "2026-12-31",
+    "Dálniční známka": "2026-12-08"
+  });
+
+  renderAuto("karoq", "Škoda Karoq", {
+    "STK":             "2027-04-23",
+    "Pojištění":       "2026-06-19",
+    "Dálniční známka": "2027-01-29"
+  });
+
+  renderAuto("ceed", "Kia Ceed", {
+    "STK":       "2026-05-17",
+    "Pojištění": "2027-02-14"
+  });
+
+  renderAuto("rio", "Kia Rio", {
+    "STK":       "2026-11-11",
+    "Pojištění": "2027-04-17"
+  });
+</script>
+
+</body>
+</html>
